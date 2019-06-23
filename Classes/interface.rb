@@ -19,11 +19,11 @@ class Interface
 
   def new_round
     sleep 1
-    puts "Колода перетасована."
+    puts 'Колода перетасована.'
     @deck = Deck.new
 
     sleep 1
-    puts "Ставки сделаны."
+    puts 'Ставки сделаны.'
     @player.bank -= 10
     @prize = 10
 
@@ -31,7 +31,7 @@ class Interface
     puts "На кону: #{@prize}$"
 
     sleep 1
-    puts "Карты розданны!"
+    puts 'Карты розданны!'
     sleep 1
     player.hand = []
     player.draw_card(@deck)
@@ -57,12 +57,12 @@ class Interface
   end
 
   def round_options
-    options = { 1 => "pass", 2 => "pick_a_card", 3 => "open_hand"}
+    options = { 1 => 'pass', 2 => 'pick_a_card', 3 => 'open_hand' }
 
-    puts "Что будете делать?"
-    puts "1 - пропустить ход."
-    puts "2 - взять ещё одну карту"
-    puts "3 - открыть карты"
+    puts 'Что будете делать?'
+    puts '1 - пропустить ход.'
+    puts '2 - взять ещё одну карту'
+    puts '3 - открыть карты'
     choice = gets.chomp.to_i
 
     send(options[choice]) if options[choice]
@@ -83,13 +83,13 @@ class Interface
 
   def open_hand
     if score > 21
-      puts "Вы проиграли"
+      puts 'Вы проиграли'
       @player.show_bank
       sleep 1
-      puts "Зато мы выиграли!"
+      puts 'Зато мы выиграли!'
       continue
     else
-      puts "А тут нужно считать"
+      puts 'А тут нужно считать'
       @player.show_bank
       continue
     end
@@ -97,9 +97,9 @@ class Interface
 
   def continue
     if @player.bank != 0
-      puts "Желаете сыграть ещё?"
-      puts "1 - да"
-      puts "2 - с меня на сегодня хватит"
+      puts 'Желаете сыграть ещё?'
+      puts '1 - да'
+      puts '2 - с меня на сегодня хватит'
       choice = gets.chomp.to_i
 
       return new_round if choice == 1
@@ -107,11 +107,10 @@ class Interface
       continue
     else
       @player.show_bank
-      puts "Нищим здесь не подают"
+      puts 'Нищим здесь не подают'
       exit
     end
   end
-
 end
 
 game = Interface.new
