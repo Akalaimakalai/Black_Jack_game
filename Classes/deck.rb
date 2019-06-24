@@ -20,8 +20,6 @@ class Deck
         new_deck(rang[0], rang[1], suit)
       end
     end
-    # deck.each {|i| print "#{i}\n" }
-    # puts "---------"
   end
 
   def new_deck(rang, points, suit)
@@ -36,7 +34,5 @@ class Deck
 
   def remove_card(card)
     @deck.delete(card)
-    # deck.each {|i| print "#{i}\n" }
-    # puts "---------"
   end
 end

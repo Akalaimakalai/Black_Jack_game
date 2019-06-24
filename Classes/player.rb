@@ -1,6 +1,4 @@
 class Player
-  require_relative 'deck'
-
   attr_accessor :bank, :hand
   attr_reader :name, :card
 
@@ -16,13 +14,8 @@ class Player
     puts ''
   end
 
-  def show_bank
-    puts "У вас насчету: #{@bank}$"
-  end
-
   def draw_card(plying_deck)
     @card = plying_deck.deck.sample
-    puts "#{@name} вытянул из колоды: #{@card[:rang]}#{@card[:suit]}"
     @hand << @card
     plying_deck.remove_card(@card)
   end
