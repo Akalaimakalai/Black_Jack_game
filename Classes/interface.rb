@@ -1,4 +1,8 @@
 class Interface
+  require_relative '../Modules/game'
+
+  include Game
+
   attr_accessor :prize, :score
   attr_reader :player, :deck, :diler
 
@@ -22,9 +26,7 @@ class Interface
 
     sleep 1
     puts 'Ставки сделаны.'
-    @player.bank -= 10
-    @diler.bank -= 10
-    @prize = 20
+    bets
 
     sleep 1
     puts "На кону: #{@prize}$"
@@ -37,7 +39,7 @@ class Interface
 
     card_pull
 
-    player.show_hand
+    show_hand(@player)
     puts "Сумма очков: #{count_points(@player.hand)}"
 
     sleep 1
@@ -47,26 +49,13 @@ class Interface
   def card_pull
     2.times do
       @player.draw_card(@deck)
-      puts "#{@player.name} вытянул из колоды: #{@player.card[:rang]}#{@player.card[:suit]}"
+      puts "#{@player.name} вытянул из колоды: #{@player.card.rang}#{@player.card.suit}"
       sleep 1
 
       diler.draw_card(@deck)
       puts "#{@diler.name} вытянул из колоды: *"
       sleep 1
     end
-  end
-
-  def count_points(hand)
-    @score = 0
-    hand.each { |card| @score += card[:points] }
-    return @score if @score <= 21
-    hand.each do |card|
-      if card[:points] == 11
-        @score -= 10
-        return @score if @score <= 21
-      end
-    end
-    @score
   end
 
   def round_options
@@ -87,23 +76,10 @@ class Interface
     end
   end
 
-  def pass
-    @dil_points = count_points(@diler.hand)
-
-    if @dil_points >= 17
-      puts 'Дилер пасует'
-      round_options
-    else
-      puts 'Дилер добрал ещё одну карту'
-      diler.draw_card(@deck)
-      round_options
-    end
-  end
-
   def pick_a_card
     sleep 1
     player.draw_card(@deck)
-    player.show_hand
+    show_hand(@player)
     puts "Сумма очков: #{count_points(@player.hand)}"
     pass
   end
@@ -112,20 +88,21 @@ class Interface
     sleep 1
     puts 'Вскрываемся!'
 
-    @diler.show_hand
-    @player.show_hand
-    @dil_points = count_points(@diler.hand)
-    @player_points = count_points(@player.hand)
+    show_hand(@diler)
+    show_hand(@player)
+    sum_result
+  end
 
-    puts "У Дилера #{@dil_points} очков, а у вас #{@player_points}."
+  def show_hand(person)
+    print "У #{person.name} на руке:"
+    person.hand.each {|card| print "#{card.rang}#{card.suit} " }
+    puts ''
+  end
 
-    if (@dil_points > @player_points) || (@player_points > 21)
-      lose
-    elsif (@dil_points < @player_points) || (@dil_points > 21)
-      win
-    else
-      draw
-    end
+  def win
+    puts 'Вы выиграли!'
+    sum_win
+    puts "У вас на счету: #{@player.bank}"
     continue
   end
 
@@ -134,21 +111,16 @@ class Interface
     puts "У вас на счету: #{@player.bank}"
     sleep 1
     puts 'Зато мы выиграли!'
-    @diler.bank += 20
+    sum_lose
     puts "У дилера: #{@diler.bank}"
+    continue
   end
 
   def draw
     puts 'Ничья'
-    @player.bank += 10
-    @diler.bank += 10
+    sum_draw
     puts "У вас на счету: #{@player.bank}"
-  end
-
-  def win
-    puts 'Вы выиграли!'
-    @player.bank += 20
-    puts "У вас на счету: #{@player.bank}"
+    continue
   end
 
   def continue

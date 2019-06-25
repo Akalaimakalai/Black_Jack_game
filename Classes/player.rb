@@ -8,14 +8,8 @@ class Player
     @bank = bank
   end
 
-  def show_hand
-    print "У #{@name} на руке:"
-    @hand.each {|i| print "#{i[:rang]}#{i[:suit]} " }
-    puts ''
-  end
-
   def draw_card(plying_deck)
-    @card = plying_deck.deck.sample
+    @card = plying_deck.cards.sample
     @hand << @card
     plying_deck.remove_card(@card)
   end
