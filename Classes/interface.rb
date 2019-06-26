@@ -6,27 +6,21 @@ class Interface
   attr_accessor :prize, :score
   attr_reader :player, :deck, :diler
 
-  def initialize
-    @prize = 0
-  end
-
   def start
     puts 'Доброго вечера и приятной игры!'
     puts 'Введите имя игрока:'
     name = gets.chomp
-    @player = Player.new(name)
-    @diler = Player.new('Diler')
+    preparation(name)
     new_round
   end
 
   def new_round
     sleep 1
     puts 'Колода перетасована.'
-    @deck = Deck.new
 
     sleep 1
     puts 'Ставки сделаны.'
-    bets
+    
 
     sleep 1
     puts "На кону: #{@prize}$"
@@ -34,10 +28,8 @@ class Interface
     sleep 1
     puts 'Карты розданны!'
     sleep 1
-    player.hand = []
-    diler.hand = []
-
-    card_pull
+    
+    bets
 
     show_hand(@player)
     puts "Сумма очков: #{count_points(@player.hand)}"
@@ -76,11 +68,22 @@ class Interface
     end
   end
 
+  def auto_turn
+    if @diler.hand.length < 3
+      puts 'Дилер спасовал'
+    else
+      puts 'Дилер добрал ещё одну карту'
+    end
+    round_options
+  end
+
   def pick_a_card
     sleep 1
     player.draw_card(@deck)
+    puts "#{@player.name} вытянул из колоды: #{@player.card.rang}#{@player.card.suit}"
     show_hand(@player)
     puts "Сумма очков: #{count_points(@player.hand)}"
+    open_hand if @diler.hand.length == 3
     pass
   end
 
@@ -97,6 +100,10 @@ class Interface
     print "У #{person.name} на руке:"
     person.hand.each {|card| print "#{card.rang}#{card.suit} " }
     puts ''
+  end
+
+  def show_points
+    puts "У Дилера #{@dil_points} очков, а у вас #{@player_points}."
   end
 
   def win

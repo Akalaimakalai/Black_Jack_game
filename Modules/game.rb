@@ -1,8 +1,19 @@
 module Game
+
+  def preparation(input)
+    @player = Player.new(input)
+    @diler = Player.new('Diler')
+    @prize = 20
+  end
+
   def bets
     @player.bank -= 10
     @diler.bank -= 10
-    @prize = 20
+    @deck = Deck.new
+    player.hand = []
+    diler.hand = []
+
+    card_pull
   end
 
   def count_points(hand)
@@ -21,20 +32,15 @@ module Game
   def pass
     @dil_points = count_points(@diler.hand)
 
-    if @dil_points >= 17
-      puts 'Дилер пасует'
-    else
-      puts 'Дилер добрал ещё одну карту'
-      diler.draw_card(@deck)
-    end
-    round_options
+    diler.draw_card(@deck) if @dil_points <= 17
+    auto_turn
   end
 
   def sum_result
     @dil_points = count_points(@diler.hand)
     @player_points = count_points(@player.hand)
 
-    puts "У Дилера #{@dil_points} очков, а у вас #{@player_points}."
+    show_points
 
     return lose if @player_points > 21
     return win if @dil_points > 21
