@@ -1,5 +1,4 @@
 module Game
-
   def preparation(input)
     @player = Player.new(input)
     @diler = Player.new('Diler')

@@ -20,7 +20,6 @@ class Interface
 
     sleep 1
     puts 'Ставки сделаны.'
-    
 
     sleep 1
     puts "На кону: #{@prize}$"
@@ -28,7 +27,7 @@ class Interface
     sleep 1
     puts 'Карты розданны!'
     sleep 1
-    
+
     bets
 
     show_hand(@player)
