@@ -1,5 +1,7 @@
-module Game
-  def preparation(input)
+class Game
+  attr_reader :player, :diler, :prize, :deck, :dil_points, :player_points
+
+  def initialize(input)
     @player = Player.new(input)
     @diler = Player.new('Diler')
     @prize = 20
@@ -11,8 +13,6 @@ module Game
     @deck = Deck.new
     player.hand = []
     diler.hand = []
-
-    card_pull
   end
 
   def count_points(hand)
@@ -28,28 +28,16 @@ module Game
     @score
   end
 
-  def pass
-    @dil_points = count_points(@diler.hand)
+  def logic_count(player_points, dil_points)
+    return 'lose' if player_points > 21
+    return 'win' if dil_points > 21
 
-    diler.draw_card(@deck) if @dil_points <= 17
-    auto_turn
-  end
-
-  def sum_result
-    @dil_points = count_points(@diler.hand)
-    @player_points = count_points(@player.hand)
-
-    show_points
-
-    return lose if @player_points > 21
-    return win if @dil_points > 21
-
-    if @dil_points > @player_points
-      lose
-    elsif @dil_points < @player_points
-      win
+    if dil_points > player_points
+      'lose'
+    elsif dil_points < player_points
+      'win'
     else
-      draw
+      'draw'
     end
   end
 

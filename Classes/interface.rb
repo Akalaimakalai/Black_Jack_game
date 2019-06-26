@@ -1,16 +1,11 @@
 class Interface
-  require_relative '../Modules/game'
-
-  include Game
-
-  attr_accessor :prize, :score
-  attr_reader :player, :deck, :diler
+  attr_reader :player, :deck, :diler, :dil_points, :player_points
 
   def start
     puts 'Доброго вечера и приятной игры!'
     puts 'Введите имя игрока:'
     name = gets.chomp
-    preparation(name)
+    @game = Game.new(name)
     new_round
   end
 
@@ -22,16 +17,17 @@ class Interface
     puts 'Ставки сделаны.'
 
     sleep 1
-    puts "На кону: #{@prize}$"
+    puts "На кону: #{@game.prize}$"
 
     sleep 1
     puts 'Карты розданны!'
     sleep 1
 
-    bets
+    @game.bets
+    card_pull
 
-    show_hand(@player)
-    puts "Сумма очков: #{count_points(@player.hand)}"
+    show_hand(@game.player)
+    puts "Сумма очков: #{@game.count_points(@game.player.hand)}"
 
     sleep 1
     round_options
@@ -39,12 +35,12 @@ class Interface
 
   def card_pull
     2.times do
-      @player.draw_card(@deck)
-      puts "#{@player.name} вытянул из колоды: #{@player.card.rang}#{@player.card.suit}"
+      @game.player.draw_card(@game.deck)
+      puts "#{@game.player.name} взял из колоды: #{@game.player.card.rang}#{@game.player.card.suit}"
       sleep 1
 
-      diler.draw_card(@deck)
-      puts "#{@diler.name} вытянул из колоды: *"
+      @game.diler.draw_card(@game.deck)
+      puts "#{@game.diler.name} взял из колоды: *"
       sleep 1
     end
   end
@@ -52,7 +48,7 @@ class Interface
   def round_options
     options = { 1 => 'pass', 2 => 'pick_a_card', 3 => 'open_hand' }
 
-    open_hand if @player.hand.length >= 3
+    open_hand if @game.player.hand.length >= 3
 
     puts 'Что будете делать?'
     puts '1 - пропустить ход.'
@@ -67,22 +63,24 @@ class Interface
     end
   end
 
-  def auto_turn
-    if @diler.hand.length < 3
-      puts 'Дилер спасовал'
-    else
+  def pass
+    @dil_points = @game.count_points(@game.diler.hand)
+    if @dil_points <= 17 && @game.diler.hand.length < 3
+      @game.diler.draw_card(@game.deck)
       puts 'Дилер добрал ещё одну карту'
+    else
+      puts 'Дилер спасовал'
     end
     round_options
   end
 
   def pick_a_card
     sleep 1
-    player.draw_card(@deck)
-    puts "#{@player.name} вытянул из колоды: #{@player.card.rang}#{@player.card.suit}"
-    show_hand(@player)
-    puts "Сумма очков: #{count_points(@player.hand)}"
-    open_hand if @diler.hand.length == 3
+    @game.player.draw_card(@game.deck)
+    puts "#{@game.player.name} взял из колоды: #{@game.player.card.rang}#{@game.player.card.suit}"
+    show_hand(@game.player)
+    puts "Сумма очков: #{@game.count_points(@game.player.hand)}"
+    open_hand if @game.diler.hand.length == 3
     pass
   end
 
@@ -90,9 +88,15 @@ class Interface
     sleep 1
     puts 'Вскрываемся!'
 
-    show_hand(@diler)
-    show_hand(@player)
-    sum_result
+    show_hand(@game.diler)
+    show_hand(@game.player)
+
+    @dil_points = @game.count_points(@game.diler.hand)
+    @player_points = @game.count_points(@game.player.hand)
+
+    puts "У Дилера #{@dil_points} очков, а у вас #{@player_points}."
+
+    send(@game.logic_count(@player_points, @dil_points))
   end
 
   def show_hand(person)
@@ -101,40 +105,36 @@ class Interface
     puts ''
   end
 
-  def show_points
-    puts "У Дилера #{@dil_points} очков, а у вас #{@player_points}."
-  end
-
   def win
     puts 'Вы выиграли!'
-    sum_win
-    puts "У вас на счету: #{@player.bank}"
+    @game.sum_win
+    puts "У вас на счету: #{@game.player.bank}"
     continue
   end
 
   def lose
     puts 'Вы проиграли'
-    puts "У вас на счету: #{@player.bank}"
+    puts "У вас на счету: #{@game.player.bank}"
     sleep 1
     puts 'Зато мы выиграли!'
-    sum_lose
-    puts "У дилера: #{@diler.bank}"
+    @game.sum_lose
+    puts "У дилера: #{@game.diler.bank}"
     continue
   end
 
   def draw
     puts 'Ничья'
-    sum_draw
-    puts "У вас на счету: #{@player.bank}"
+    @game.sum_draw
+    puts "У вас на счету: #{@game.player.bank}"
     continue
   end
 
   def continue
-    if @diler.bank.zero?
+    if @game.diler.bank.zero?
       puts 'Заведение закрыто. Для вас навсегда.'
       exit
-    elsif @player.bank.zero?
-      puts "У вас на счету: #{@player.bank}"
+    elsif @game.player.bank.zero?
+      puts "У вас на счету: #{@game.player.bank}"
       puts 'Нищим здесь не подают'
       exit
     else

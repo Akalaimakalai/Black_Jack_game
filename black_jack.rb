@@ -1,6 +1,7 @@
 require_relative './Classes/deck'
 require_relative './Classes/player'
 require_relative './Classes/interface'
+require_relative './Classes/game'
 
-game = Interface.new
-game.start
+match = Interface.new
+match.start
